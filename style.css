@@ -1,0 +1,64 @@
+body {
+    margin: 4% 8%;
+}
+
+body hr:last-child {
+    display: none;
+}
+
+a, p, h1, h2 {
+    font-family: 'Roboto', sans-serif;
+}
+
+hr {
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    margin: 2.5em;
+}
+
+.mt-0 {
+    margin-top: 0;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.font-1-3 {
+    font-size: 1.3em;
+}
+
+.backup-files-day {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.file {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin-top: 1em;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+.file-image {
+    width: 80px;
+    height: 80px;
+}
+
+.file-name {
+    margin: 0;
+}
+
+.file-link {
+    text-decoration: none;
+    color: black;
+}
