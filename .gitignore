@@ -1,5 +1,2 @@
-# Backup storage file.
-saves/*
-
 # ENV files
 *.env

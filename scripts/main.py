@@ -34,18 +34,17 @@ if __name__ == "__main__":
         tables = stdout.readlines()[4:]
         tables.pop()
 
-    # Exports table data.
+    ## Exports table data.
     for table in tables:
         table = table.replace('|', '').strip()
         if table not in tables_to_ignored:
             ssh.exec_command(
                 f'mysqldump --defaults-file="/root/.my.cnf" -u {ssh_db_username} --no-create-info {ssh_db_name} {table} > "{temp_file_path}/{table}.sql"')
     # ssh.exec_command(f'mysqldump --defaults-file="/root/.my.cnf" -u {ssh_db_username} --no-data {ssh_db_name} --ignore-table={ssh_db_name}.devices_traited_data --ignore-table={ssh_db_name}.logs > "{temp_file_path}/structure.sql"')
-    ssh.exec_command(
-        f'mysqldump --defaults-file=/root/.my.cnf -u {ssh_db_username} --no-data {ssh_db_name} > structure.sql')
+    ssh.exec_command(f'mysqldump --defaults-file=/root/.my.cnf -u {ssh_db_username} --no-data {ssh_db_name} > {temp_file_path}/structure.sql')
     print("Retrieved")
 
-    with ssh.exec_command(f"zip data.zip /root/exported_data/*")[1] as stdout:
+    with ssh.exec_command(f"zip -j data.zip {temp_file_path}/*")[1] as stdout:
         a = stdout.readlines()
         print("Zipped")
 
@@ -55,7 +54,7 @@ if __name__ == "__main__":
     print("Repatriated")
 
     ssh.exec_command("rm .my.cnf")
-    ssh.exec_command("rm data.sql")
+    ssh.exec_command(f"rm {temp_file_path}/*")
     ssh.exec_command("rm data.zip")
     print("Deleted tracks")
 
