@@ -42,10 +42,8 @@ foreach ($files_names as $file_path) {
     }
 }
 
-usort($dates, function ($a, $b) {
-    return strtotime($a) + strtotime($b);
-});
 $dates = array_unique($dates);
+$dates = array_reverse($dates);
 
 $last_date_formated = DateTime::createFromFormat($DATE_FORMAT, $files[$dates[0]][count($files[$dates[0]]) - 1]['name'])->format('d/m/Y \à H:i');
 ?>
@@ -73,8 +71,10 @@ $last_date_formated = DateTime::createFromFormat($DATE_FORMAT, $files[$dates[0]]
 <?php 
 else : 
     foreach ($files_names as $file_path) {
-        $data[] = "/saves/" . $file_path; 
+        if (strpos($file_path, '.zip') > 0) {
+          $data[] = "/saves/" . $file_path;
+        } 
     }
 
-    echo json_encode(['code' => 200, 'status' => 'OK', 'data' => json_encode($data)]);
+    echo json_encode(['code' => 200, 'status' => 'OK', 'data' => $data], JSON_UNESCAPED_SLASHES);
 endif; ?>
