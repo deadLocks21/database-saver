@@ -15,6 +15,8 @@ ssh_db_password = os.getenv('SSH_DB_PASSWORD')
 ssh_db_data_to_ignore = f"--ignore-table={ssh_db_name}.devices_traited_data --ignore-table={ssh_db_name}.logs"
 
 save_path = os.getenv('SAVE_PATH')
+tables_to_ignored = ['logs', 'devices_traited_data']
+temp_file_path = "/root/exported_data"
 
 if __name__ == "__main__":
     k = paramiko.RSAKey.from_private_key_file(ssh_key)
@@ -28,15 +30,27 @@ if __name__ == "__main__":
     user={ssh_db_username}
     password={ssh_db_password}' > .my.cnf""")
 
-    ssh.exec_command(f"mysqldump --defaults-file=/root/.my.cnf -u {ssh_db_username} {ssh_db_name} {ssh_db_data_to_ignore} > data.sql")
+    with ssh.exec_command(f'mysqlshow db_quatrefactorielle')[1] as stdout:
+        tables = stdout.readlines()[4:]
+        tables.pop()
+
+    # Exports table data.
+    for table in tables:
+        table = table.replace('|', '').strip()
+        if table not in tables_to_ignored:
+            ssh.exec_command(
+                f'mysqldump --defaults-file="/root/.my.cnf" -u {ssh_db_username} --no-create-info {ssh_db_name} {table} > "{temp_file_path}/{table}.sql"')
+    # ssh.exec_command(f'mysqldump --defaults-file="/root/.my.cnf" -u {ssh_db_username} --no-data {ssh_db_name} --ignore-table={ssh_db_name}.devices_traited_data --ignore-table={ssh_db_name}.logs > "{temp_file_path}/structure.sql"')
+    ssh.exec_command(
+        f'mysqldump --defaults-file=/root/.my.cnf -u {ssh_db_username} --no-data {ssh_db_name} > structure.sql')
     print("Retrieved")
 
-    with ssh.exec_command(f"zip data.zip data.sql")[1] as stdout:
+    with ssh.exec_command(f"zip data.zip /root/exported_data/*")[1] as stdout:
         a = stdout.readlines()
         print("Zipped")
 
     sftp = ssh.open_sftp()
-    sftp.get("/root/data.zip", f"{save_path}/data.zip")
+    sftp.get("/root/data.zip", f"{save_path}data.zip")
     sftp.close()
     print("Repatriated")
 
@@ -47,7 +61,7 @@ if __name__ == "__main__":
 
     ssh.close()
 
-    os.rename('/home/tim/database_saver/saves/data.zip', f'/home/tim/database_saver/saves/{datetime.today().strftime("%Y-%m-%d %H:%M")}.zip')
+    os.rename(f'{save_path}data.zip', f'{save_path}{datetime.today().strftime("%Y-%m-%d %H:%M")}.zip')
     print("Renamed")
-    
+
     print("Goodbye")
