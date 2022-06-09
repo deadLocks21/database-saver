@@ -1,2 +1,4 @@
 # ENV files
 *.env
+
+scripts/libs/__pycache__/*
