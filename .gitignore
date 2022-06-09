@@ -1,4 +1,6 @@
 # ENV files
 *.env
-
 scripts/libs/__pycache__/*
+
+saves/*
+exported_data/*
